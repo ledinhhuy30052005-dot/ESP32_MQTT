@@ -16,7 +16,7 @@
 ### 1. Tìm hiểu về giao thức MQTT
 *   **Định nghĩa:** MQTT là giao thức truyền tin nhắn theo mô hình Publish/Subscribe thông qua một máy chủ trung gian gọi là Broker.
 
-<img src="image-2.png" width="500">
+<img src="image/image-2.png" width="500">
 
 *   **Phân tích mô hình hoạt động:**
     *   **Publisher (Người gửi):** ESP32 đọc trạng thái và đẩy dữ liệu lên các địa chỉ cụ thể gọi là **Topic**.
@@ -264,13 +264,13 @@ void loop(){
 #### Kết quả thực nghiệm 
 * Đây là trạng thái 3 LED ON và hiển thị lên MQTT Explorer
 
-<img src="image-3.png" width="300">
-<img src="image-5.png" width="300">
+<img src="image/image-3.png" width="300">
+<img src="image/image-5.png" width="300">
 
 * Đây là trạng thái 2 led on và 1 led được nhận lệnh tắt đèn từ MQTT Explorer
 
-<img src="image-6.png" width="300">
-<img src="image-7.png" width="300">
+<img src="image/image-6.png" width="300">
+<img src="image/image-7.png" width="300">
 
 
 
