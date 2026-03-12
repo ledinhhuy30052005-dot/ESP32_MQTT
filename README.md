@@ -7,14 +7,14 @@
 ##  A. Công việc đã làm
 1. **Nghiên cứu lý thuyết:** Tìm hiểu bản chất giao thức MQTT và mô hình Publish/Subscribe.
 2. **Cấu hình hệ thống:** Thiết lập môi trường kết nối MQTT cho ESP32 thông qua thư viện `PubSubClient`.
-3. **Triển khai thực tế:** Hoàn thành Project điều khiển 3 LED, đồng bộ trạng thái giữa nút nhấn vật lý và phần mềm MQTT Explorer.
+3. **Triển khai :** Hoàn thành Project điều khiển 3 LED, đồng bộ trạng thái giữa nút nhấn vật lý và phần mềm MQTT Explorer.
 
 ---
 
 ##  B. Công việc chi tiết
 
 ### 1. Tìm hiểu về giao thức MQTT
-*   **Định nghĩa:** MQTT (Message Queuing Telemetry Transport) là giao thức truyền tin nhắn nhẹ theo mô hình Publish/Subscribe thông qua một máy chủ trung gian gọi là Broker.
+*   **Định nghĩa:** MQTT là giao thức truyền tin nhắn theo mô hình Publish/Subscribe thông qua một máy chủ trung gian gọi là Broker.
 
 <img src="image-2.png" width="500">
 
@@ -35,7 +35,19 @@
 #### 2.2. Các hàm chức năng chính
 *   **Hàm `setup_wifi()`**: Đảm bảo ESP32 kết nối mạng thành công trước khi thực hiện các tác vụ khác.
 *   **Hàm `reconnect()`**: Xử lý logic tự động kết nối lại nếu gặp sự cố rớt mạng hoặc mất tín hiệu từ Broker.
-*   **Hàm `mqttcallback()`**: Xử lý dữ liệu nhận về. Khi có lệnh từ ngoại vi, hàm này tự động chuyển mảng Byte thô thành chuỗi `String` để thực hiện các phép so sánh logic điều khiển thiết bị.
+*   **Hàm `mqttcallback(char* topic, byte* payload, unsigned int length)`**: Xử lý dữ liệu nhận về. Khi có lệnh từ ngoại vi, hàm này tự động sẽ được thực hiện.
+   + **`char* topic`**:  là topic mà ESP32 đăng kí để nhận lệnh từ ngoại vi về
+
+  + **`byte* payload`**
+    + Là **nội dung dữ liệu nhận từ MQTT Broker**.
+    + Dữ liệu được lưu dưới dạng **mảng byte**.
+    + Thường cần chuyển sang `char` hoặc `String` để xử lý.
+ 
+  + **`unsigned int length`**
+    + Là **độ dài của dữ liệu payload** (số byte).
+    + Dùng để biết có bao nhiêu byte dữ liệu trong `payload`.
+
+
 *   **Hàm `mqtt.loop()`**: Lệnh duy trì sự sống cho kết nối, gửi gói tin giữ nhịp (ping) và giải phóng bộ đệm khi có tin nhắn mới.
 
 #### 2.3. Các lệnh gửi và nhận dữ liệu
