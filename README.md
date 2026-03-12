@@ -291,7 +291,7 @@ void loop(){
 * Nghiên cứu ứng dụng trao đổi dữ liệu giữa các board ESP32.
 * Tiếp tục tìm hiểu sâu về lập trình ESP32 và STM32.
 
-[toan bo code](src/main.c)
+
 
 
 
