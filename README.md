@@ -1,60 +1,54 @@
-# D23_Lê Đình Huy
+# BÁO CÁO NGHIÊN CỨU ESP32 & GIAO THỨC MQTT
+**Người thực hiện:** D23 Lê Đình Huy 
 
-## A.Công việc đã làm 
+
+---
+
+##  A. Công việc đã làm
+1. **Nghiên cứu lý thuyết:** Tìm hiểu bản chất giao thức MQTT và mô hình Publish/Subscribe.
+2. **Cấu hình hệ thống:** Thiết lập môi trường kết nối MQTT cho ESP32 thông qua thư viện `PubSubClient`.
+3. **Triển khai thực tế:** Hoàn thành Project điều khiển 3 LED, đồng bộ trạng thái giữa nút nhấn vật lý và phần mềm MQTT Explorer.
+
+---
+
+##  B. Công việc chi tiết
 
 ### 1. Tìm hiểu về giao thức MQTT
-### 2. Thiết lập kết nối MQTT cho ESp32
-### 3. Làm 1 project nhỏ về ESP32 và MQTT kiểm tra dữ liệu trên MQTT Explorer
+*   **Định nghĩa:** MQTT (Message Queuing Telemetry Transport) là giao thức truyền tin nhắn nhẹ theo mô hình Publish/Subscribe thông qua một máy chủ trung gian gọi là Broker.
 
-## B.Công việc chi tiết
+<img src="image-2.png" width="500">
 
-### 1. Tìm hiểu về giao thức MQTT
+*   **Phân tích mô hình hoạt động:**
+    *   **Publisher (Người gửi):** ESP32 đọc trạng thái và đẩy dữ liệu lên các địa chỉ cụ thể gọi là **Topic**.
+    *   **Subscriber (Người nhận):** Máy tính hoặc App đăng ký vào Topic đó để nhận dữ liệu về theo thời gian thực.
+    *   **Broker (Người điều phối):** Đứng ở giữa, tiếp nhận tin nhắn từ người gửi và phân phối chính xác đến những người đăng ký.
+    *   **Điều khiển hai chiều:** Các thiết bị bên ngoài có thể gửi lệnh điều khiển ngược về ESP32 thông qua Broker.
 
-  Định nghĩa : MQTT là giao thức truyền tin nhắn theo mô hình Publish/Subscribe thông qua Broker.
+---
 
+### 2. Thiết lập chương trình cho ESP32
 
-<img src="image-2.png" width="400">
-
-* **Phân tích hình ảnh:**
-   * Publisher (Người gửi): ESP32 đọc dữ liệu cảm biến và đẩy lên một địa chỉ gọi là Topic.
-   * Subscriber (Người nhận): App điện thoại hoặc máy tính đăng ký vào Topic đó để nhận dữ liệu về.
-   * Broker (Người điều phối): Đứng ở giữa, nhận tin nhắn từ người gửi và phân phối chính xác đến những người đăng ký.
-   * Các thiết bị từ bên ngoài có thể gửi lệnh điều khiển ngược về ESP32 thông qua Broker
-
-### 2. Thiết lập và Viết chương trình cho ESP32
-
-  #### 2.1. Khởi tạo đối tượng kết nối
-
-*   **`WiFiClient espClient;`**: Kết nối ESP32 với Broker thông qua TCP/IP
-*   **`PubSubClient mqtt(espClient);`**: Lệnh này khởi tạo "người đưa thư" MQTT. Bằng cách truyền `espClient` vào trong, ta cho phép giao thức MQTT chạy đè lên con đường TCP đã tạo trước đó, giúp đóng gói dữ liệu theo đúng tiêu chuẩn MQTT.
+#### 2.1. Khởi tạo đối tượng kết nối
+*   **`WiFiClient espClient;`**: Thiết lập kết nối cơ bản giữa ESP32 với Broker thông qua giao thức TCP/IP.
+*   **`PubSubClient mqtt(espClient);`**: Khởi tạo thực thể MQTT chạy trên nền tảng TCP/IP, chịu trách nhiệm đóng gói dữ liệu đúng tiêu chuẩn.
 
 #### 2.2. Các hàm chức năng chính
+*   **Hàm `setup_wifi()`**: Đảm bảo ESP32 kết nối mạng thành công trước khi thực hiện các tác vụ khác.
+*   **Hàm `reconnect()`**: Xử lý logic tự động kết nối lại nếu gặp sự cố rớt mạng hoặc mất tín hiệu từ Broker.
+*   **Hàm `mqttcallback()`**: Xử lý dữ liệu nhận về. Khi có lệnh từ ngoại vi, hàm này tự động chuyển mảng Byte thô thành chuỗi `String` để thực hiện các phép so sánh logic điều khiển thiết bị.
+*   **Hàm `mqtt.loop()`**: Lệnh duy trì sự sống cho kết nối, gửi gói tin giữ nhịp (ping) và giải phóng bộ đệm khi có tin nhắn mới.
 
-#### a. Hàm `setup_wifi()`
-Đảm bảo thiết bị gia nhập mạng thành công trước khi thực hiện cái khác.
+#### 2.3. Các lệnh gửi và nhận dữ liệu
+*   **`mqtt.publish(topic, payload)`**: Lệnh gửi dữ liệu trạng thái từ ESP32 lên Broker.
+*   **`mqtt.subscribe(topic)`**: Lệnh đăng ký nhận dữ liệu từ một chủ đề nhất định trên Broker.
 
-#### b. Hàm `reconnect()` 
-Hàm này xử lý logic kết nối lại tự động nếu gặp sự cố rớt mạng hoặc mất tín hiệu từ Broker.
+---
 
-#### c. Hàm `mqttcallback(char* topic, byte* payload, unsigned int length)` - Xử lý dữ liệu nhận về
- ESP32 đăng kí 1 Topic nhận lệnh điều khiển từ ngoại vi về, khi có lệnh từ ngoại vi về thì hàm này sẽ tự động thực hiện 
-*   **`payload` & `length`**: Dữ liệu nhận về mặc định ở dạng mảng Byte thô.
-* **`topic`** : Chủ đề mà ESP32 đăng kí để nhận lệnh điều khiển từ ngoại vi
-*   **Xử lý chuỗi**: Sử dụng vòng lặp `for` để nối các Byte thành một chuỗi `String` hoàn chỉnh, từ đó thực hiện các phép so sánh logic để điều khiển thiết bị (ví dụ: nhận lệnh "ON" để bật LED).
+### 3. Project: Điều khiển 3 LED qua MQTT & Nút nhấn
+*   **Đề tài:** Đọc trạng thái 3 LED hiển thị lên MQTT Explorer, dùng 3 nút nhấn để điều khiển tại chỗ và cho phép điều khiển từ xa qua MQTT Explorer.
 
-#### d. Hàm `mqtt.loop()` trong `loop()` chính
-Đây là lệnh quan trọng nhất để duy trì sự sống cho kết nối.
-*   Nó đảm nhận việc gửi gói tin duy trì.
-*   Kiểm tra và giải phóng bộ đệm khi có tin nhắn mới đến. Nếu thiếu lệnh này, ESP32 sẽ bị Broker coi là đã "chết" và ngắt kết nối chỉ sau vài giây.
+####  Mã nguồn chương trình
 
-#### 2.3. Các lệnh gửi và nhận dữ liệu (Publish/Subscribe)
-*   **`mqtt.publish(topic, payload)`**: 
-    *   Lệnh gửi dữ liệu từ ESP32 lên Broker (ví dụ: báo cáo trạng thái cảm biến).
-*   **`mqtt.subscribe(topic)`**: 
-    *   Khi có bất kỳ tin nhắn nào được gửi vào Topic này, Broker có trách nhiệm đẩy tin nhắn đó xuống ESP32.
-
-## 3. Làm 1 project nhỏ về ESP32 và MQTT kiểm tra dữ liệu trên MQTT Explorer
-* Đề tài : đọc trạng thái 3 led hiển thị trên MQTT explorer ,dùng 3 BUTTON để bật tắt LED, có thể điều khiển LED từ MQTT explorer thay vì BUTTON
 ```
 #include <Arduino.h>
 #include <PubSubClient.h>
@@ -255,6 +249,19 @@ void loop(){
 
 ```
 
+#### Kết quả thực nghiệm 
+* Đây là trạng thái 3 LED ON và hiển thị lên MQTT Explorer
+
+<img src="image-3.png" width="300">
+<img src="image-5.png" width="300">
+
+* Đây là trạng thái 2 led on và 1 led được nhận lệnh tắt đèn từ MQTT Explorer
+
+<img src="image-6.png" width="300">
+<img src="image-7.png" width="300">
+
+
+
 ## C. Các linh kiện dụng trong project
 |Tên|Số lượng|
 |:---|:---:|
@@ -264,10 +271,13 @@ void loop(){
 
 
 ## D. Khó khăn trong công việc
-Em đăng gặp khó khăn trong việc tạo ClientID cho ESP32 và  chưa hiểu rõ khi làm việc với nhiều client cùng lúc thì như nào cấu hình ra sao 
+* Chưa tối ưu hóa hoàn toàn việc quản lý ClientID khi có nhiều thiết bị tham gia.
+* Cần nghiên cứu thêm về cách cấu hình Broker khi có nhiều Client hoạt động cùng lúc để tránh xung đột dữ liệu.
 
 ## E. Công việc sắp tới
-Tìm hiểu về cách làm việc với nhiều Client khác nhau và làm 1 số project với nhiều client , tiếp tục tìm hiểu về Stm32,ESP32 
+* Tìm hiểu cách làm việc và quản lý nhiều Client MQTT.
+* Nghiên cứu ứng dụng trao đổi dữ liệu giữa các board ESP32.
+* Tiếp tục tìm hiểu sâu về lập trình ESP32 và STM32.
 
 
 
